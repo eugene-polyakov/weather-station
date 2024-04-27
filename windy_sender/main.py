@@ -121,6 +121,7 @@ def process_means():
 
     # print(transformed_totals)
     url = "https://stations.windy.com/pws/update/" + os.environ["WINDY_API_KEY"]
+    print(transformed_totals)
     response = requests.post(url, json=transformed_totals)
     if response.status_code == 200:
         print("Result sent successfully")
