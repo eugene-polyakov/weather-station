@@ -30,10 +30,10 @@ Adafruit_AHTX0 aht;
 EspMQTTClient client(
   SECRET_SSID,
   SECRET_WIFI_PASSWORD,
-  SECRET_MQTT_BROKER,  // MQTT Broker server ip
-  SECRET_MQTT_USER,   // Can be omitted if not needed
-  SECRET_MQTT_PWD,   // Can be omitted if not needed
-  "roof_device"      // Client name that uniquely identify your device
+  SECRET_MQTT_BROKER,  
+  SECRET_MQTT_USER, 
+  SECRET_MQTT_PWD,  
+  "roof_device"  
 );
 
 #define temp_topic "outside_temp"
