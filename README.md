@@ -1,5 +1,7 @@
 # Weather station
 
+![Here's the one !](IMG_7611.jpg)
+
 Hey folks - the station is situated on the roof of the residential building in Alanya, Turkey ([Riverside Resort](https://g.co/kgs/4uqLjyM)) at the mouth of a mountain canyon which makes wind reading quite weird in the mornings when the thermals flow down.
 Decided to post the data anyways as there's a very poor coverage of the area. This is a home-built custom weather station running on esp32 controller - [source code is here on github](https://github.com/eugene-polyakov/weather-station)
 
