@@ -7,5 +7,14 @@
         "rh": 36.85,
         "pressure": 100884.69,
         "timestamp": 1714308682
+    },
+    {
+        "winddir": 90.0,
+        "wind": 1.25,
+        "gust": 1.4,
+        "temp": 33.38,
+        "rh": 37.21,
+        "pressure": 100882.57,
+        "timestamp": 1714308751
     }
 ]
