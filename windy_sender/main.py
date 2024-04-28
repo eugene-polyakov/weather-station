@@ -118,7 +118,8 @@ def process_means():
     for old_category, value in totals.items():
         new_category = topic_to_windy.get(old_category, old_category)
         transformed_totals[new_category] = value
-
+    totals.clear()
+    # transformed_totals["station"]
     # print(transformed_totals)
     url = "https://stations.windy.com/pws/update/" + os.environ["WINDY_API_KEY"]
     print(transformed_totals)
@@ -136,7 +137,7 @@ def main():
     client.loop_start()
     while True:
         process_means()
-        time.sleep(60)  # Sleep for 5 minutes
+        time.sleep(300)  # Sleep for 5 minutes
 
 
 if __name__ == "__main__":
