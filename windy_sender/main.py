@@ -3,9 +3,12 @@ import os
 import time
 from collections import defaultdict
 import statistics
+from dotenv import load_dotenv
 
 import requests
 from paho.mqtt import client as mqtt_client
+
+load_dotenv()
 
 broker = os.environ["MQTT_BROKER"]
 port = 1883
