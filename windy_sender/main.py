@@ -111,8 +111,7 @@ def subscribe(client: mqtt_client):
 def process_means():
     for category, data_values in data.items():
         if data_values:
-            median = statistics.median(data_values)
-            totals[category] = median
+            totals[category] = round(statistics.median(data_values), 2)
             if category == wind_speed_topic:
                 mx = max(data[category])
                 totals[wind_gust_aggregate] = mx
@@ -122,6 +121,7 @@ def process_means():
         new_category = topic_to_windy.get(old_category, old_category)
         transformed_totals[new_category] = value
     totals.clear()
+    data.clear()
     if len(transformed_totals):
         url = "https://stations.windy.com/pws/update/" + os.environ["WINDY_API_KEY"]
         print(transformed_totals)
