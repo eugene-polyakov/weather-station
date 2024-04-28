@@ -1,20 +1,254 @@
 [
     {
+        "winddir": 90.0,
+        "wind": 1.0,
+        "gust": 2.1,
+        "temp": 30.95,
+        "rh": 44.69,
+        "pressure": 100868.29,
+        "timestamp": 1714312741
+    },
+    {
+        "winddir": 90,
+        "wind": 1.2,
+        "gust": 2.3,
+        "temp": 31.05,
+        "rh": 42.84,
+        "pressure": 100864.39,
+        "timestamp": 1714313041
+    },
+    {
+        "winddir": 225,
+        "wind": 0.2,
+        "gust": 1.6,
+        "temp": 30.58,
+        "rh": 47.27,
+        "pressure": 100866.39,
+        "timestamp": 1714313341
+    },
+    {
+        "winddir": 180,
+        "wind": 0.0,
+        "gust": 1.2,
+        "temp": 30.68,
+        "rh": 46.26,
+        "pressure": 100864.38,
+        "timestamp": 1714313642
+    },
+    {
+        "winddir": 90,
+        "wind": 1.1,
+        "gust": 2.3,
+        "temp": 30.71,
+        "rh": 44.08,
+        "pressure": 100860.88,
+        "timestamp": 1714313942
+    },
+    {
+        "winddir": 90,
+        "wind": 1.8,
+        "gust": 2.6,
+        "temp": 30.5,
+        "rh": 42.98,
+        "pressure": 100853.49,
+        "timestamp": 1714314242
+    },
+    {
+        "winddir": 90.0,
+        "wind": 1.5,
+        "gust": 1.9,
+        "temp": 30.28,
+        "rh": 43.88,
+        "pressure": 100849.81,
+        "timestamp": 1714314542
+    },
+    {
+        "winddir": 90,
+        "wind": 1.7,
+        "gust": 2.5,
+        "temp": 30.04,
+        "rh": 48.1,
+        "pressure": 100853.77,
+        "timestamp": 1714314843
+    },
+    {
+        "winddir": 90,
+        "wind": 1.5,
+        "gust": 2.1,
+        "temp": 29.76,
+        "rh": 49.55,
+        "pressure": 100852.36,
+        "timestamp": 1714315143
+    },
+    {
+        "winddir": 90.0,
+        "wind": 0.8,
+        "gust": 1.7,
+        "temp": 29.6,
+        "rh": 51.01,
+        "pressure": 100851.18,
+        "timestamp": 1714315443
+    },
+    {
+        "winddir": 90,
+        "wind": 0.9,
+        "gust": 1.4,
+        "temp": 29.73,
+        "rh": 50.89,
+        "pressure": 100851.84,
+        "timestamp": 1714315743
+    },
+    {
+        "winddir": 135,
+        "wind": 0.7,
+        "gust": 1.2,
+        "temp": 29.49,
+        "rh": 50.72,
+        "pressure": 100851.16,
+        "timestamp": 1714316044
+    },
+    {
+        "winddir": 90,
+        "wind": 1.2,
+        "gust": 1.9,
+        "temp": 29.69,
+        "rh": 50.64,
+        "pressure": 100853.75,
+        "timestamp": 1714316344
+    },
+    {
+        "winddir": 90.0,
+        "wind": 1.45,
+        "gust": 1.9,
+        "temp": 28.98,
+        "rh": 53.11,
+        "pressure": 100852.4,
+        "timestamp": 1714316644
+    },
+    {
         "winddir": 90,
         "wind": 1.4,
-        "gust": 1.4,
-        "temp": 33.13,
-        "rh": 36.85,
-        "pressure": 100884.69,
-        "timestamp": 1714308682
+        "gust": 1.7,
+        "temp": 29.03,
+        "rh": 52.99,
+        "pressure": 100853.42,
+        "timestamp": 1714316945
+    },
+    {
+        "winddir": 90,
+        "wind": 1.5,
+        "gust": 2.1,
+        "temp": 28.68,
+        "rh": 54.49,
+        "pressure": 100853.38,
+        "timestamp": 1714317246
     },
     {
         "winddir": 90.0,
         "wind": 1.25,
+        "gust": 1.9,
+        "temp": 28.34,
+        "rh": 56.38,
+        "pressure": 100851.4,
+        "timestamp": 1714317546
+    },
+    {
+        "winddir": 135.0,
+        "wind": 1.2,
         "gust": 1.4,
-        "temp": 33.38,
-        "rh": 37.21,
-        "pressure": 100882.57,
-        "timestamp": 1714308751
+        "temp": 28.19,
+        "rh": 57.44,
+        "pressure": 100855.56,
+        "timestamp": 1714317846
+    },
+    {
+        "winddir": 90.0,
+        "wind": 1.4,
+        "gust": 2.2,
+        "temp": 28.02,
+        "rh": 57.86,
+        "pressure": 100858.94,
+        "timestamp": 1714318147
+    },
+    {
+        "winddir": 90.0,
+        "wind": 0.7,
+        "gust": 1.5,
+        "temp": 27.61,
+        "rh": 59.42,
+        "pressure": 100855.2,
+        "timestamp": 1714318447
+    },
+    {
+        "winddir": 112.5,
+        "wind": 0.6,
+        "gust": 1.1,
+        "temp": 27.73,
+        "rh": 58.67,
+        "pressure": 100859.09,
+        "timestamp": 1714318748
+    },
+    {
+        "winddir": 90,
+        "wind": 0.5,
+        "gust": 0.8,
+        "temp": 27.44,
+        "rh": 59.27,
+        "pressure": 100858.2,
+        "timestamp": 1714319049
+    },
+    {
+        "winddir": 90.0,
+        "wind": 0.9,
+        "gust": 1.0,
+        "temp": 27.16,
+        "rh": 59.42,
+        "pressure": 100855.35,
+        "timestamp": 1714319350
+    },
+    {
+        "winddir": 90,
+        "wind": 0.6,
+        "gust": 1.1,
+        "temp": 27.03,
+        "rh": 59.57,
+        "pressure": 100856.47,
+        "timestamp": 1714319650
+    },
+    {
+        "winddir": 90,
+        "wind": 0.4,
+        "gust": 1.0,
+        "temp": 26.68,
+        "rh": 60.35,
+        "pressure": 100863.97,
+        "timestamp": 1714319951
+    },
+    {
+        "winddir": 90,
+        "wind": 0.6,
+        "gust": 1.5,
+        "temp": 26.31,
+        "rh": 61.18,
+        "pressure": 100862.45,
+        "timestamp": 1714320252
+    },
+    {
+        "winddir": 90.0,
+        "wind": 0.75,
+        "gust": 1.1,
+        "temp": 25.98,
+        "rh": 60.84,
+        "pressure": 100867.55,
+        "timestamp": 1714320553
+    },
+    {
+        "winddir": 135,
+        "wind": 0.1,
+        "gust": 0.6,
+        "temp": 25.82,
+        "rh": 62.49,
+        "pressure": 100871.97,
+        "timestamp": 1714320853
     }
 ]

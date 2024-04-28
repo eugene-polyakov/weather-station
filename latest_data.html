@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Data Chart</title>
+    <!-- Include Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+<h1>Weather Data Chart</h1>
+<div id="chart"></div>
+
+<script>
+    // Function to map wind direction to marker symbol
+    function getMarkerSymbol(direction) {
+        // Choose marker symbol based on wind direction
+        // You can customize this mapping as needed
+        if (direction === 0) {
+            return 'triangle-down-open';
+        } else if (direction === 45) {
+            return 'triangle-sw-open';
+        } else if (direction === 90) {
+            return 'triangle-left-open';
+        } else if (direction === 135) {
+            return 'triangle-nw-open';
+        } else if (direction === 180) {
+            return 'triangle-up-open';
+        } else if (direction === 225) {
+            return 'triangle-ne-open';
+        } else if (direction === 270) {
+            return 'triangle-right-open';
+        } else if (direction === 315) {
+            return 'triangle-nw-open';
+        } else {
+            return 'x-thin'
+        }
+    }
+
+        function getWindDirectionLabel(direction) {
+        // Map wind direction angle to label
+        const directions = {
+            0: 'N',
+            45: 'NE',
+            90: 'E',
+            135: 'SE',
+            180: 'S',
+            225: 'SW',
+            270: 'W',
+            315: 'NW'
+        };
+        return directions[direction];
+    }
+
+    // Fetch weather data JSON
+    fetch('windy_sender/weather_data.json')
+        .then(response => response.json())
+        .then(weatherData => {
+            // Extract data for plotting
+            const timestamps = weatherData.map(entry => entry.timestamp * 1000); // Convert Unix timestamp to milliseconds
+            const windSpeeds = weatherData.map(entry => entry.wind);
+            const windGusts = weatherData.map(entry => entry.gust);
+            const windDirections = weatherData.map(entry => entry.winddir);
+            const temperatures = weatherData.map(entry => entry.temp);
+            const humidities = weatherData.map(entry => entry.rh);
+            const pressures = weatherData.map(entry => entry.pressure);
+
+            // Create traces for filled areas between wind speed and gusts
+            const trace1 = {
+                x: timestamps,
+                y: windSpeeds,
+                mode: 'lines',
+                name: 'Wind Speed',
+                yaxis: 'y1', // Assign to y-axis 1
+                fill: 'tozeroy', // Fill area below the line
+                line: {color: 'rgba(0, 128, 255, 1)', width: 0} // Green color for wind speed line
+            };
+
+            const trace2 = {
+                x: timestamps,
+                y: windGusts,
+                mode: 'lines',
+                name: 'Wind Gusts',
+                yaxis: 'y1', // Assign to y-axis 1
+                fill: 'tonexty', // Fill area between the lines
+                line: {color: 'rgba(0, 20, 128, 1)', width: 0} // Blue color for gusts line
+            };
+
+            // Create a trace for wind direction markers
+            const trace3 = {
+                x: timestamps,
+                y: windSpeeds, // Use wind speed data for y-values
+                mode: 'markers',
+                name: 'Wind Direction',
+                hovertemplate: windDirections.map(direction => getWindDirectionLabel(direction)),
+                marker: {
+                    symbol: windDirections.map(direction => getMarkerSymbol(direction)), // Map wind direction to marker symbol
+                    size: 10,
+                    color: 'rgba(0, 0, 0, 1)' // Black color for wind direction markers
+                },
+                showlegend: false,
+                yaxis: 'y1', // Assign to y-axis 1
+            };
+
+            // Create traces for the rest of the weather parameters as lines
+            const trace4 = {
+                x: timestamps,
+                y: temperatures,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Temperature',
+                yaxis: 'y2', // Assign to y-axis 2
+                line: {color: 'rgba(255, 0, 0, 0.5)', width: 2}
+            };
+
+            const trace5 = {
+                x: timestamps,
+                y: humidities,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Humidity',
+                yaxis: 'y3', // Assign to y-axis 3
+                line: {color: 'rgba(0, 128, 0, 0.5)', width: 1}
+            };
+
+            const trace6 = {
+                x: timestamps,
+                y: pressures,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Pressure',
+                yaxis: 'y4', // Assign to y-axis 4
+                line: {width: 1}, // Narrower line width for temperature
+            };
+
+            // Create data array for the plot
+            const data = [trace1, trace2, trace3, trace4, trace5, trace6];
+
+            // Define layout options
+            const layout = {
+                title: 'Weather Data Over Time',
+                xaxis: {
+                    title: '',
+                    type: 'date',
+                    tickformat: '%Y-%m-%d %H:%M:%S' // Date and time format for ticks
+                },
+                yaxis: {title: 'Wind Speed & Gusts', side: 'left'}, // Assign y-axis 1
+                yaxis2: {visible: false, title: 'Temperature', side: 'right', overlaying: 'y', anchor: 'free'}, // Assign y-axis 2
+                yaxis3: {visible: false, title: 'Humidity', side: 'right', overlaying: 'y', anchor: 'free'}, // Assign y-axis 3
+                yaxis4: {visible: false, title: 'Pressure', side: 'right', overlaying: 'y', anchor: 'free'}, // Assign y-axis 4
+            };
+
+            // Create the plot
+            Plotly.newPlot('chart', data, layout);
+        })
+        .catch(error => console.error('Error fetching weather data:', error));
+</script>
+</body>
+</html>

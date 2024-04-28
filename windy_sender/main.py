@@ -30,7 +30,7 @@ wind_gust_aggregate = 'gust'
 
 data_filename = "weather_data.json"
 cycle_length = 300 # 5 minutes
-github_cycles = 2 # 10 minutes
+github_cycles = 6 # 30 minutes
 
 all_numeric_topics = [temp_topic, humidity_topic, pressure_topic, wind_speed_topic]
 topic_to_windy = {temp_topic: 'temp',
