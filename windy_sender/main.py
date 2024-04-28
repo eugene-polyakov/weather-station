@@ -1,8 +1,12 @@
+import json
 import logging
 import os
+import subprocess
 import time
 from collections import defaultdict
 import statistics
+from datetime import datetime, timedelta
+
 from dotenv import load_dotenv
 
 import requests
@@ -24,6 +28,10 @@ wind_direction_topic = 'outside_wind_direction'
 
 wind_gust_aggregate = 'gust'
 
+data_filename = "weather_data.json"
+cycle_length = 300 # 5 minutes
+github_cycles = 2 # 10 minutes
+
 all_numeric_topics = [temp_topic, humidity_topic, pressure_topic, wind_speed_topic]
 topic_to_windy = {temp_topic: 'temp',
                   humidity_topic: 'rh',
@@ -32,9 +40,6 @@ topic_to_windy = {temp_topic: 'temp',
                   wind_direction_topic: 'winddir',
                   wind_gust_aggregate: 'gust'
                   }
-
-data = {}
-totals = {}
 
 FIRST_RECONNECT_DELAY = 1
 RECONNECT_RATE = 2
@@ -52,7 +57,7 @@ wind_map = {"N": 0,
             "-1": -1
             }
 
-data = defaultdict(list)
+mqtt_data = defaultdict(list)
 
 
 def connect_mqtt():
@@ -96,11 +101,11 @@ def subscribe(client: mqtt_client):
         category = msg.topic
         if msg.topic in all_numeric_topics:
             payload = float(msg.payload.decode())
-            data[category].append(payload)
+            mqtt_data[category].append(payload)
         if category == wind_direction_topic:
             payload = msg.payload.decode()
             value = wind_map[payload]
-            data[category].append(value)
+            mqtt_data[category].append(value)
 
     for topic in all_numeric_topics:
         client.subscribe(topic)
@@ -108,28 +113,37 @@ def subscribe(client: mqtt_client):
     client.on_message = on_message
 
 
+def update_github_repository(weather_data):
+    # Commit and push changes to GitHub
+    subprocess.run(['git', 'add', data_filename])
+    subprocess.run(['git', 'commit', '-m', 'Update weather data'])
+    subprocess.run(['git', 'push'])
+
+
+def send_to_windy(data):
+    url = "https://stations.windy.com/pws/update/" + os.environ["WINDY_API_KEY"]
+    print(data)
+    response = requests.post(url, json=data)
+    if response.status_code == 200:
+        print("sent ok")
+    else:
+        print("Failed to send result")
+
+
 def process_means():
-    for category, data_values in data.items():
+    totals = {}
+    for category, data_values in mqtt_data.items():
         if data_values:
             totals[category] = round(statistics.median(data_values), 2)
             if category == wind_speed_topic:
-                mx = max(data[category])
+                mx = max(mqtt_data[category])
                 totals[wind_gust_aggregate] = mx
-    # print(totals)
     transformed_totals = {}
     for old_category, value in totals.items():
         new_category = topic_to_windy.get(old_category, old_category)
         transformed_totals[new_category] = value
-    totals.clear()
-    data.clear()
-    if len(transformed_totals):
-        url = "https://stations.windy.com/pws/update/" + os.environ["WINDY_API_KEY"]
-        print(transformed_totals)
-        response = requests.post(url, json=transformed_totals)
-        if response.status_code == 200:
-            print("Result sent successfully")
-        else:
-            print("Failed to send result")
+    mqtt_data.clear()
+    return transformed_totals
 
 
 def main():
@@ -137,9 +151,26 @@ def main():
     client.on_disconnect = on_disconnect
     subscribe(client)
     client.loop_start()
+    cycle_counter = 0
+    try:
+        with open(data_filename, 'r') as f:
+            weather_history = json.load(f)
+    except FileNotFoundError:
+        weather_history = []
     while True:
-        process_means()
-        time.sleep(300)  # Sleep for 5 minutes
+        time.sleep(cycle_length)
+        processed = process_means()
+        if len(processed):
+            send_to_windy(processed)
+            processed["timestamp"] = int(time.time())
+            weather_history.append(processed)
+            weather_history = [data for data in weather_history
+                        if data['timestamp'] >= time.time() - (7 * 24 * 60 * 60)]
+            with open(data_filename, 'w') as f:
+                json.dump(weather_history, f, indent=4)
+        cycle_counter += 1
+        if cycle_counter % github_cycles == 0:
+            update_github_repository(weather_history)
 
 
 if __name__ == "__main__":
