@@ -119,15 +119,14 @@ def process_means():
         new_category = topic_to_windy.get(old_category, old_category)
         transformed_totals[new_category] = value
     totals.clear()
-    # transformed_totals["station"]
-    # print(transformed_totals)
-    url = "https://stations.windy.com/pws/update/" + os.environ["WINDY_API_KEY"]
-    print(transformed_totals)
-    response = requests.post(url, json=transformed_totals)
-    if response.status_code == 200:
-        print("Result sent successfully")
-    else:
-        print("Failed to send result")
+    if len(transformed_totals):
+        url = "https://stations.windy.com/pws/update/" + os.environ["WINDY_API_KEY"]
+        print(transformed_totals)
+        response = requests.post(url, json=transformed_totals)
+        if response.status_code == 200:
+            print("Result sent successfully")
+        else:
+            print("Failed to send result")
 
 
 def main():
