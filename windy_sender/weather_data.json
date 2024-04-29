@@ -502,5 +502,113 @@
         "rh": 53.98,
         "pressure": 100931.53,
         "timestamp": 1714330212
+    },
+    {
+        "winddir": 45.0,
+        "wind": 0.65,
+        "gust": 1.8,
+        "temp": 23.59,
+        "rh": 62.89,
+        "pressure": 100938.14,
+        "timestamp": 1714330587
+    },
+    {
+        "winddir": 270.0,
+        "wind": 0.3,
+        "gust": 1.9,
+        "temp": 23.58,
+        "rh": 55.7,
+        "pressure": 100938.57,
+        "timestamp": 1714330897
+    },
+    {
+        "winddir": 270,
+        "wind": 0.3,
+        "gust": 0.6,
+        "temp": 23.49,
+        "rh": 55.95,
+        "pressure": 100935.09,
+        "timestamp": 1714331214
+    },
+    {
+        "winddir": 315,
+        "wind": 0.2,
+        "gust": 1.4,
+        "temp": 23.62,
+        "rh": 56.26,
+        "pressure": 100940.94,
+        "timestamp": 1714331538
+    },
+    {
+        "winddir": 180,
+        "wind": 1.1,
+        "gust": 2.7,
+        "temp": 26.64,
+        "rh": 62.01,
+        "pressure": 100983.96,
+        "timestamp": 1714367827
+    },
+    {
+        "winddir": 180,
+        "wind": 2.7,
+        "gust": 3.2,
+        "temp": 26.34,
+        "rh": 57.92,
+        "pressure": 100990.48,
+        "timestamp": 1714368132
+    },
+    {
+        "winddir": 135,
+        "wind": 1.2,
+        "gust": 2.3,
+        "temp": 31.7,
+        "rh": 47.77,
+        "pressure": 101047.27,
+        "timestamp": 1714372607
+    },
+    {
+        "winddir": 180.0,
+        "wind": 1.15,
+        "gust": 2.1,
+        "temp": 30.91,
+        "rh": 50.2,
+        "pressure": 101051.73,
+        "timestamp": 1714372908
+    },
+    {
+        "winddir": 180,
+        "wind": 0.8,
+        "gust": 1.9,
+        "temp": 31.24,
+        "rh": 49.93,
+        "pressure": 101052.91,
+        "timestamp": 1714373251
+    },
+    {
+        "winddir": 225,
+        "wind": 0.3,
+        "gust": 1.9,
+        "temp": 31.9,
+        "rh": 48.36,
+        "pressure": 101050.12,
+        "timestamp": 1714373552
+    },
+    {
+        "winddir": 90.0,
+        "wind": 1.4,
+        "gust": 2.4,
+        "temp": 32.12,
+        "rh": 47.67,
+        "pressure": 101046.87,
+        "timestamp": 1714373923
+    },
+    {
+        "winddir": 90.0,
+        "wind": 1.8,
+        "gust": 2.5,
+        "temp": 31.93,
+        "rh": 48.33,
+        "pressure": 101045.48,
+        "timestamp": 1714374224
     }
 ]
