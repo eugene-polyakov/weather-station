@@ -29,8 +29,8 @@ wind_direction_topic = 'outside_wind_direction'
 wind_gust_aggregate = 'gust'
 
 data_filename = "weather_data.json"
-cycle_length = 300 # 5 minutes
-github_cycles = 6 # 30 minutes
+cycle_length = 300  # 5 minutes
+github_cycles = 6  # 30 minutes
 
 all_numeric_topics = [temp_topic, humidity_topic, pressure_topic, wind_speed_topic]
 topic_to_windy = {temp_topic: 'temp',
@@ -161,16 +161,22 @@ def main():
         time.sleep(cycle_length)
         processed = process_means()
         if len(processed):
-            send_to_windy(processed)
+            try:
+                send_to_windy(processed)
+            except Exception as e:
+                print("Cannot send to windy", e)
             processed["timestamp"] = int(time.time())
             weather_history.append(processed)
             weather_history = [data for data in weather_history
-                        if data['timestamp'] >= time.time() - (7 * 24 * 60 * 60)]
+                               if data['timestamp'] >= time.time() - (7 * 24 * 60 * 60)]
             with open(data_filename, 'w') as f:
                 json.dump(weather_history, f, indent=4)
         cycle_counter += 1
         if cycle_counter % github_cycles == 0:
-            update_github_repository(weather_history)
+            try:
+                update_github_repository(weather_history)
+            except Exception as e:
+                print("Cannot update github", e)
 
 
 if __name__ == "__main__":
