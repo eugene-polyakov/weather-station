@@ -1073,5 +1073,59 @@
         "rh": 61.78,
         "pressure": 100887.5,
         "timestamp": 1714460128
+    },
+    {
+        "winddir": 180,
+        "wind": 0.0,
+        "gust": 1.9,
+        "temp": 29.16,
+        "rh": 50.32,
+        "pressure": 100881.26,
+        "timestamp": 1714461400
+    },
+    {
+        "winddir": 180.0,
+        "wind": 0.7,
+        "gust": 2.6,
+        "temp": 28.1,
+        "rh": 55.09,
+        "pressure": 100903.26,
+        "timestamp": 1714461701
+    },
+    {
+        "winddir": 180,
+        "wind": 0.7,
+        "gust": 1.9,
+        "temp": 27.8,
+        "rh": 56.56,
+        "pressure": 100899.89,
+        "timestamp": 1714462009
+    },
+    {
+        "winddir": 157.5,
+        "wind": 0.9,
+        "gust": 2.8,
+        "temp": 27.57,
+        "rh": 61.33,
+        "pressure": 100912.82,
+        "timestamp": 1714462310
+    },
+    {
+        "winddir": 180,
+        "wind": 1.2,
+        "gust": 5.0,
+        "temp": 27.43,
+        "rh": 62.14,
+        "pressure": 100912.5,
+        "timestamp": 1714462617
+    },
+    {
+        "winddir": 180,
+        "wind": 0.8,
+        "gust": 2.4,
+        "temp": 26.63,
+        "rh": 65.1,
+        "pressure": 100909.28,
+        "timestamp": 1714462918
     }
 ]
