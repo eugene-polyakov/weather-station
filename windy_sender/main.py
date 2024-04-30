@@ -168,7 +168,7 @@ def main():
             processed["timestamp"] = int(time.time())
             weather_history.append(processed)
             weather_history = [data for data in weather_history
-                               if data['timestamp'] >= time.time() - (7 * 24 * 60 * 60)]
+                               if data['timestamp'] >= time.time() - (12 * 60 * 60)]
             with open(data_filename, 'w') as f:
                 json.dump(weather_history, f, indent=4)
         cycle_counter += 1
