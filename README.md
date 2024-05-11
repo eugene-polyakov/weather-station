@@ -1,5 +1,5 @@
 # Weather station
-[check the latest data here](latest_data.html)
+[check the latest data here](https://eugene-polyakov.github.io/weather-station/latest_data.html)
 
 ![Here it is !](IMG_7611.jpg)
 
