@@ -52,18 +52,28 @@
         return directions[direction];
     }
 
+    function unixTimestampToDate(timestamp) {
+        return new Date(timestamp * 1000);
+    }
+
     // Fetch weather data JSON
-    fetch('windy_sender/weather_data.json')
-        .then(response => response.json())
-        .then(weatherData => {
+    fetch('https://ep-weather.s3.amazonaws.com/weather_data.csv')
+        .then(response => response.text() )
+        .then(csvData => {
+            // Parse CSV data
+            const rows = csvData.split('\n');
+            const data = rows.map(row => row.split(','));
+
             // Extract data for plotting
-            const timestamps = weatherData.map(entry => entry.timestamp * 1000); // Convert Unix timestamp to milliseconds
-            const windSpeeds = weatherData.map(entry => entry.wind);
-            const windGusts = weatherData.map(entry => entry.gust);
-            const windDirections = weatherData.map(entry => entry.winddir);
-            const temperatures = weatherData.map(entry => entry.temp);
-            const humidities = weatherData.map(entry => entry.rh);
-            const pressures = weatherData.map(entry => entry.pressure);
+            const timestamps = data.map(entry => unixTimestampToDate(parseFloat(entry[0]))); // Timestamps
+            const windSpeeds = data.map(entry => parseFloat(entry[6])); // Wind Speeds
+            const windGusts = data.map(entry => parseFloat(entry[8])); // Wind Gusts
+            const windDirections = data.map(entry => parseFloat(entry[7])); // Wind Directions
+            const temperatures = data.map(entry => parseFloat(entry[3])); // Temperatures
+            const humidities = data.map(entry => parseFloat(entry[4])); // Humidities
+            const pressures = data.map(entry => parseFloat(entry[5])); // Pressures
+
+
 
             // Create traces for filled areas between wind speed and gusts
             const trace1 = {
@@ -134,7 +144,7 @@
             };
 
             // Create data array for the plot
-            const data = [trace1, trace2, trace3, trace4, trace5, trace6];
+            const _data = [trace1, trace2, trace3, trace4, trace5, trace6];
 
             // Define layout options
             const layout = {
@@ -151,7 +161,7 @@
             };
 
             // Create the plot
-            Plotly.newPlot('chart', data, layout);
+            Plotly.newPlot('chart', _data, layout);
         })
         .catch(error => console.error('Error fetching weather data:', error));
 </script>

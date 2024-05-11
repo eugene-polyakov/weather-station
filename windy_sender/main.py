@@ -1,18 +1,20 @@
-import json
+import asyncio
+import csv
 import logging
 import os
-import subprocess
 import time
+import boto3
+
 from collections import defaultdict
-import statistics
-from datetime import datetime, timedelta
 
 from dotenv import load_dotenv
 
-import requests
 from paho.mqtt import client as mqtt_client
 
 load_dotenv()
+
+s3 = boto3.client('s3', aws_access_key_id=os.environ["AWS_KEY_ID"], aws_secret_access_key=os.environ["AWS_ACCESS_KEY"],
+                  region_name=os.environ["AWS_REGION"])
 
 broker = os.environ["MQTT_BROKER"]
 port = 1883
@@ -20,44 +22,26 @@ username = os.environ["MQTT_USERNAME"]
 password = os.environ["MQTT_PASSWORD"]
 client_id = 'weather-sender'
 
-temp_topic = 'outside_temp'
-humidity_topic = 'outside_humidity'
-pressure_topic = 'outside_pressure'
-wind_speed_topic = 'outside_wind_speed'
-wind_direction_topic = 'outside_wind_direction'
+air_quality_topic = 'weather-station/sensor/air_quality/state'
+rain_topic = 'weather-station/sensor/rain/state'
+temp_topic = 'weather-station/sensor/temperature/state'
+humidity_topic = 'weather-station/sensor/humidity/state'
+pressure_topic = 'weather-station/sensor/outside_pressure/state'
+wind_speed_topic = 'weather-station/sensor/wind_speed/state'
+wind_direction_topic = 'weather-station/sensor/wind_direction/state'
+wind_gusts_topic = 'weather-station/sensor/wind_gusts/state'
 
-wind_gust_aggregate = 'gust'
+all_topics = [air_quality_topic, rain_topic, temp_topic, humidity_topic, pressure_topic, wind_speed_topic,
+              wind_direction_topic, wind_gusts_topic]
 
-data_filename = "weather_data.json"
-cycle_length = 300  # 5 minutes
-github_cycles = 6  # 30 minutes
-
-all_numeric_topics = [temp_topic, humidity_topic, pressure_topic, wind_speed_topic]
-topic_to_windy = {temp_topic: 'temp',
-                  humidity_topic: 'rh',
-                  pressure_topic: 'pressure',
-                  wind_speed_topic: 'wind',
-                  wind_direction_topic: 'winddir',
-                  wind_gust_aggregate: 'gust'
-                  }
+data_filename = "weather_data.csv"
 
 FIRST_RECONNECT_DELAY = 1
 RECONNECT_RATE = 2
 MAX_RECONNECT_COUNT = 12
 MAX_RECONNECT_DELAY = 60
 
-wind_map = {"N": 0,
-            "NE": 45,
-            "E": 90,
-            "SE": 135,
-            "S": 180,
-            "SW": 225,
-            "W": 270,
-            "NW": 315,
-            "-1": -1
-            }
-
-mqtt_data = defaultdict(list)
+upload_interval = 60 * 30  # 30 mins
 
 
 def connect_mqtt():
@@ -76,7 +60,7 @@ def connect_mqtt():
     return client
 
 
-def on_disconnect(client, userdata, rc):
+def on_disconnect(client, userdata, rc, arg4, arg5):
     logging.info("Disconnected with result code: %s", rc)
     reconnect_count, reconnect_delay = 0, FIRST_RECONNECT_DELAY
     while reconnect_count < MAX_RECONNECT_COUNT:
@@ -96,87 +80,77 @@ def on_disconnect(client, userdata, rc):
     logging.info("Reconnect failed after %s attempts. Exiting...", reconnect_count)
 
 
-def subscribe(client: mqtt_client):
+def subscribe(client: mqtt_client, mqtt_data, weather_history):
     def on_message(_client, userdata, msg):
-        category = msg.topic
-        if msg.topic in all_numeric_topics:
-            payload = float(msg.payload.decode())
-            mqtt_data[category].append(payload)
-        if category == wind_direction_topic:
-            payload = msg.payload.decode()
-            value = wind_map[payload]
-            mqtt_data[category].append(value)
+        payload_str = msg.payload.decode('utf-8')
 
-    for topic in all_numeric_topics:
+        # Convert payload to proper type based on application logic
+        try:
+            # Try converting to integer
+            payload_int = int(payload_str)
+            mqtt_data[msg.topic] = payload_int
+        except ValueError:
+            try:
+                payload_float = float(payload_str)
+                mqtt_data[msg.topic] = payload_float
+            except ValueError:
+                # Keep payload as string if not convertible to int or float
+                mqtt_data[msg.topic] = payload_str
+        check_and_upload(mqtt_data, weather_history)
+
+    for topic in all_topics:
         client.subscribe(topic)
-    client.subscribe(wind_direction_topic)
     client.on_message = on_message
 
 
-def update_github_repository(weather_data):
-    # Commit and push changes to GitHub
-    subprocess.run(['git', 'add', data_filename])
-    subprocess.run(['git', 'commit', '-m', 'Update weather data'])
-    subprocess.run(['git', 'push'])
-
-
-def send_to_windy(data):
-    url = "https://stations.windy.com/pws/update/" + os.environ["WINDY_API_KEY"]
-    print(data)
-    response = requests.post(url, json=data)
-    if response.status_code == 200:
-        print("sent ok")
-    else:
-        print("Failed to send result")
-
-
-def process_means():
-    totals = {}
-    for category, data_values in mqtt_data.items():
-        if data_values:
-            totals[category] = round(statistics.median(data_values), 2)
-            if category == wind_speed_topic:
-                mx = max(mqtt_data[category])
-                totals[wind_gust_aggregate] = mx
-    transformed_totals = {}
-    for old_category, value in totals.items():
-        new_category = topic_to_windy.get(old_category, old_category)
-        transformed_totals[new_category] = value
-    mqtt_data.clear()
-    return transformed_totals
+def check_and_upload(mqtt_data, weather_history):
+    complete = True
+    for topic in all_topics:
+        if topic not in mqtt_data:
+            complete = False
+    # not ideal obviously, but esphome dumps all data at about the same time
+    if complete:
+        row = [round(time.time())]
+        # TODO: s3 does not allow appending lines -- switch storage mechanism
+        for topic in all_topics:
+            row.append(mqtt_data[topic])
+        weather_history.append(row)
+        one_week_ago = time.time() - (7 * 24 * 60 * 60)  # seconds in a week
+        for i in range(len(weather_history) - 1, -1, -1):
+            if float(weather_history[i][0]) < one_week_ago:
+                del weather_history[i]
+        with open(data_filename, 'w') as f:
+            writer = csv.writer(f)
+            for row in weather_history:
+                writer.writerow(row)
+        mqtt_data.clear()
+    try:
+        s3.upload_file(data_filename, os.environ["BUCKET_NAME"], data_filename)
+    except Exception as e:
+        print(f'An error occurred: {str(e)}')
 
 
 def main():
     client = connect_mqtt()
     client.on_disconnect = on_disconnect
-    subscribe(client)
     client.loop_start()
-    cycle_counter = 0
+    weather_history = []
     try:
         with open(data_filename, 'r') as f:
-            weather_history = json.load(f)
+            reader = csv.reader(f)
+            for row in reader:
+                weather_history.append(row)
     except FileNotFoundError:
-        weather_history = []
-    while True:
-        time.sleep(cycle_length)
-        processed = process_means()
-        if len(processed):
-            try:
-                send_to_windy(processed)
-            except Exception as e:
-                print("Cannot send to windy", e)
-            processed["timestamp"] = int(time.time())
-            weather_history.append(processed)
-            weather_history = [data for data in weather_history
-                               if data['timestamp'] >= time.time() - (12 * 60 * 60)]
-            with open(data_filename, 'w') as f:
-                json.dump(weather_history, f, indent=4)
-        cycle_counter += 1
-        if cycle_counter % github_cycles == 0:
-            try:
-                update_github_repository(weather_history)
-            except Exception as e:
-                print("Cannot update github", e)
+        pass
+
+    mqtt_data = defaultdict(list)
+
+    subscribe(client, mqtt_data, weather_history)
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_forever()
+    finally:
+        loop.close()
 
 
 if __name__ == "__main__":

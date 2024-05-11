@@ -1,0 +1,180 @@
+esphome:
+  name: weather-station
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+i2c:
+  sda: GPIO21
+  scl: GPIO22
+  id: bus_a
+
+uart:
+  tx_pin: 18
+  rx_pin: 23
+  baud_rate: 4800
+
+modbus:
+  flow_control_pin: 19
+  id: modbus_1
+
+modbus_controller:
+  - id: mbc_wind_dir
+    address: 0x1
+    modbus_id: modbus_1
+  - id: mbc_wind_spd
+    address: 0x2
+    modbus_id: modbus_1
+
+sensor:
+  - platform: modbus_controller
+    name: Wind Direction
+    id: wind_direction
+    icon: mdi:sign-direction
+    address: 0x1
+    # register 0x0 holds values 0 to 7
+    # register 0x1 holds degree values - 0, 45, 90, 135, etc
+    modbus_controller_id: mbc_wind_dir
+    register_type: holding
+    unit_of_measurement: "°"
+    value_type: U_WORD
+    filters:
+      median:
+        window_size: 15
+        send_every: 15
+        send_first_at: 5
+  - platform: modbus_controller
+    name: Wind Speed
+    icon: mdi:weather-windy
+    id: wind_speed
+    # don't forget - register numbers start with 0x0 !
+    # in this device, register 0 holds x10 the wind speed (to get decimals)
+    address: 0x0
+    register_count: 1
+    modbus_controller_id: mbc_wind_spd
+    register_type: holding
+    value_type: U_WORD
+    unit_of_measurement: "m/s"
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+      - sliding_window_moving_average:
+          window_size: 15
+          send_every: 15
+          send_first_at: 5
+# collecting wind gusts with lambda -
+    on_raw_value:
+      then:
+        lambda: |-
+          static int wind_window = 0;
+          static float wind_max = 0.0;
+          float real_wind = x / 10.0;
+          
+          
+          if (wind_window++ > 15)
+          {
+            wind_window = 0;
+            id(wind_gust).publish_state(wind_max);
+            ESP_LOGD("custom", "sent gust value - %f", wind_max);
+          }
+          
+          if (wind_window == 1)
+          {
+            wind_max = real_wind;
+          }
+          else
+          {
+            if (real_wind > wind_max)
+            {
+              wind_max = real_wind;
+            }
+          }
+          ESP_LOGD("custom", "value: %f, cycle: %d, max: %f", real_wind, wind_window, wind_max);
+
+
+  - platform: adc
+    pin: GPIO32
+    raw: true
+    id: rain_sensor
+    name: "Rain"
+    unit_of_measurement: "mm/h"
+    expire_after: 1300s
+    icon: "mdi:weather-rainy"
+    update_interval: never
+  - platform: adc
+    pin: GPIO33
+    raw: true
+    id: air_q_sensor
+    name: "Air Quality"
+    unit_of_measurement: "?"
+    expire_after: 1300s
+    icon: "mdi:air-purifier"
+    update_interval: 300s
+  - platform: aht10
+    variant: AHT20
+    # both AHT and BMP have temp sensors, hiding AHT one
+    humidity:
+      name: "Humidity"
+    update_interval: 300s
+  - platform: bmp280
+    temperature:
+      name: "Temperature"
+      oversampling: 16x
+    pressure:
+      name: "Outside Pressure"
+    address: 0x77
+    update_interval: 300s
+  - platform: template
+    name: "Wind Gusts"
+    id: wind_gust
+    unit_of_measurement: "m/s"
+    update_interval: never
+    accuracy_decimals: 1
+
+
+# powering up rain sensor before reading the values to prevent contact corrosion.
+# note update_interval: never on the sensor. values are only posted using interval
+interval:
+  - interval: 300s
+    then:
+      - output.turn_on: rs_power
+      - delay: 500ms
+      - component.update: rain_sensor
+      - delay: 200ms
+      - output.turn_off: rs_power
+
+output:
+  - platform: gpio
+    pin: GPIO13
+    id: rs_power
+
+mqtt:
+  broker: routah
+
+# Enable logging
+logger:
+#  level: DEBUG
+#  logs:
+#    mqtt.component: DEBUG
+#    mqtt.client: DEBUG
+
+# Enable Home Assistant API
+#api:
+#  password: !secret api_ota_password
+
+ota:
+  password: !secret api_ota_password
+
+wifi:
+  ssid: !secret iot_wifi_ssid
+  password: !secret iot_wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Weather-Station Fallback Hotspot"
+    password: !secret fallback_ap_password
+
+captive_portal:
+    
