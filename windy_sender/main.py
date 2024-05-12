@@ -110,6 +110,7 @@ def check_and_upload(mqtt_data, weather_history):
             complete = False
     # not ideal obviously, but esphome dumps all data at about the same time
     if complete:
+        print("data slice complete, sending")
         row = [round(time.time())]
         # TODO: s3 does not allow appending lines -- switch storage mechanism
         for topic in all_topics:
@@ -126,6 +127,7 @@ def check_and_upload(mqtt_data, weather_history):
         mqtt_data.clear()
     try:
         s3.upload_file(data_filename, os.environ["BUCKET_NAME"], data_filename)
+        print("uploaded")
     except Exception as e:
         print(f'An error occurred: {str(e)}')
 
