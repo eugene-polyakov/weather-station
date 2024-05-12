@@ -83,6 +83,7 @@ def on_disconnect(client, userdata, rc, arg4, arg5):
 def subscribe(client: mqtt_client, mqtt_data, weather_history):
     def on_message(_client, userdata, msg):
         payload_str = msg.payload.decode('utf-8')
+        logging.debug("Got data in topic - " + msg.topic)
 
         # Convert payload to proper type based on application logic
         try:
@@ -110,13 +111,13 @@ def check_and_upload(mqtt_data, weather_history):
             complete = False
     # not ideal obviously, but esphome dumps all data at about the same time
     if complete:
-        print("data slice complete, sending")
+        logging.info("data slice complete, sending")
         row = [round(time.time())]
         # TODO: s3 does not allow appending lines -- switch storage mechanism
         for topic in all_topics:
             row.append(mqtt_data[topic])
         weather_history.append(row)
-        one_week_ago = time.time() - (7 * 24 * 60 * 60)  # seconds in a week
+        one_week_ago = time.time() - (2 * 24 * 60 * 60)  # seconds in a week
         for i in range(len(weather_history) - 1, -1, -1):
             if float(weather_history[i][0]) < one_week_ago:
                 del weather_history[i]
@@ -125,11 +126,11 @@ def check_and_upload(mqtt_data, weather_history):
             for row in weather_history:
                 writer.writerow(row)
         mqtt_data.clear()
-    try:
-        s3.upload_file(data_filename, os.environ["BUCKET_NAME"], data_filename)
-        print("uploaded")
-    except Exception as e:
-        print(f'An error occurred: {str(e)}')
+        try:
+            s3.upload_file(data_filename, os.environ["BUCKET_NAME"], data_filename)
+            logging.debug("uploaded")
+        except Exception as e:
+            logging.error("An error occurred: %s", e)
 
 
 def main():
