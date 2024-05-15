@@ -12,7 +12,8 @@
 <h4>Weather station (drag to see older data)</h4>
 <div id="chart"></div>
 <script>
-
+    window.onorientationchange = function() {  	window.location.reload(); };
+    
     // Function to map wind direction to marker symbol
     function getMarkerSymbol(direction) {
         if (direction === 0) {
