@@ -9,11 +9,10 @@
     <script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.min.js"></script>
 </head>
 <body>
-<h4>Weather station (drag to see older data)</h4>
 <div id="chart"></div>
 <script>
     window.onorientationchange = function() {  	window.location.reload(); };
-    
+
     // Function to map wind direction to marker symbol
     function getMarkerSymbol(direction) {
         if (direction === 0) {
@@ -91,8 +90,6 @@
                 const sunrise = SunCalc.getTimes(date, latitude, longitude).sunrise;
                 sunsetSunrise.push({sunset, sunrise});
             }
-
-            console.log(sunsetSunrise);
 
             const dayNightTraces = sunsetSunrise.map(({sunset, sunrise}) => ({
                 x: [sunset, sunrise],
@@ -205,6 +202,8 @@
             const _data = [...dayNightTraces, trace1, trace2, trace3, trace4, trace5, trace6, trace7, trace8];
 
             const layout = {
+                autosize: true,
+                height: 400,
                 dragmode: 'pan',
                 margin: {l: 0, r: 0, t: 0, b: 50},
                 xaxis: {
