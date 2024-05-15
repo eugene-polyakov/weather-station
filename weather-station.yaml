@@ -170,6 +170,10 @@ ota:
 wifi:
   ssid: !secret iot_wifi_ssid
   password: !secret iot_wifi_password
+#  manual_ip:
+#    static_ip: 192.168.4.14
+#    gateway: 192.168.4.1
+#    subnet: 255.255.255.0
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
